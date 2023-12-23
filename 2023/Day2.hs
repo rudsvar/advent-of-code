@@ -16,13 +16,35 @@ data Set = Set
   deriving (Show)
 
 main :: IO ()
-main = interact $ show . sum . map gameId . filter validGame . map parseGame . lines
+main = interact $ show . solve2
+
+solve2 :: String -> Int
+solve2 = sum . map (power . maxSetOfSets . sets . parseGame) . lines
+
+power :: Set -> Int
+power set = red set * green set * blue set
+
+solve1 :: String -> Int
+solve1 = sum . map gameId . filter validGame . map parseGame . lines
+
+maxSetOfSets :: [Set] -> Set
+maxSetOfSets = foldl combineSets emptySet
+
+combineSets :: Set -> Set -> Set
+combineSets s1 s2 = Set {red = r, green = g, blue = b}
+  where
+    r = max (red s1) (red s2)
+    g = max (green s1) (green s2)
+    b = max (blue s1) (blue s2)
 
 validGame :: Game -> Bool
 validGame g = validSets (sets g)
 
 validSets :: [Set] -> Bool
 validSets = all validSet
+
+emptySet :: Set
+emptySet = Set {red = 0, green = 0, blue = 0}
 
 maxSet :: Set
 maxSet = Set {red = 12, green = 13, blue = 14}
