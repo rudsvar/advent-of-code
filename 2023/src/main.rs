@@ -42,15 +42,20 @@ fn find_last_element<'a>(s: &str, words: &[&'a str]) -> Option<&'a str> {
         .map(|(_, word)| word)
 }
 
-fn main() {
-    let arg = std::env::args().nth(1).expect("Please supply an argument");
-    let content = std::fs::read_to_string(arg).expect("Failed to read file");
+fn sum_of_first_and_last_digits(content: &str) -> u32 {
     let mut sum: u32 = 0;
     for line in content.lines() {
         let first_and_last_digit = first_and_last_digit(line);
         sum += first_and_last_digit.expect("Failed to parse line");
         println!("{}: {}", line, first_and_last_digit.unwrap_or(0));
     }
+    sum
+}
+
+fn main() {
+    let arg = std::env::args().nth(1).expect("Please supply an argument");
+    let content = std::fs::read_to_string(arg).expect("Failed to read file");
+    let sum = sum_of_first_and_last_digits(&content);
     println!("{}", sum);
 }
 
@@ -87,5 +92,11 @@ mod tests {
         assert_eq!(find_last_element("abc123", &["abc"]), Some("abc"));
         assert_eq!(find_last_element("abc123", &["123", "b"]), Some("123"));
         assert_eq!(find_last_element("abc123", &["123", "abc"]), Some("123"));
+    }
+
+    #[test]
+    fn real_test() {
+        let input = std::fs::read_to_string("day1.txt").unwrap();
+        assert_eq!(sum_of_first_and_last_digits(&input), 54277);
     }
 }
