@@ -1,3 +1,5 @@
+use std::collections::{HashMap, HashSet};
+
 fn height(s: &str) -> usize {
     s.lines().count()
 }
@@ -10,7 +12,7 @@ fn char_at(s: &str, x: usize, y: usize) -> Option<char> {
     s.chars().nth(y * width(s) + x)
 }
 
-fn surrounding_chars(s: &str, x: usize, y: usize) -> Vec<char> {
+fn surrounding_chars(s: &str, x: usize, y: usize) -> Vec<(char, usize, usize)> {
     let mut cs = Vec::new();
     for dy in -1i32..=1 {
         for dx in -1i32..=1 {
@@ -28,7 +30,7 @@ fn surrounding_chars(s: &str, x: usize, y: usize) -> Vec<char> {
             let x = x as usize;
             let y = y as usize;
             if let Some(c) = char_at(s, x, y) {
-                cs.push(c)
+                cs.push((c, x, y))
             }
         }
     }
@@ -43,8 +45,8 @@ fn main() {
         height(&content),
         width(&content)
     );
-    let mut sum: usize = 0;
     let mut i = 0;
+    let mut gear_map: HashMap<(usize, usize), HashSet<usize>> = HashMap::new();
     while i < content.len() {
         let substr = &content[i..];
         let digits: String = substr.chars().take_while(|c| c.is_ascii_digit()).collect();
@@ -55,22 +57,29 @@ fn main() {
         let y = i / width(&content);
         let x = i % width(&content);
 
-        println!("Checking {}, pos {:?}", digits, (x, y));
-        let has_adjacent_symbol = (0..digits.len()).any(|offset| {
+        // println!("Checking {}, pos {:?}", digits, (x, y));
+        for offset in 0..digits.len() {
             let surrounding_chars = surrounding_chars(&content, x + offset, y);
-            println!("Surrounding chars {:?}", surrounding_chars);
-            surrounding_chars
-                .iter()
-                .any(|&c| !c.is_ascii_digit() && c != '.' && !c.is_whitespace())
-        });
-        if has_adjacent_symbol {
-            println!("{} has adjacent symbol", digits);
-            sum += digits.parse::<usize>().unwrap();
-        } else {
-            println!("{} does not have adjacent symbol", digits);
+            // println!("Surrounding chars {:?}", surrounding_chars);
+            let gears = surrounding_chars.iter().filter(|&(c, _, _)| *c == '*');
+            for (_, x, y) in gears {
+                gear_map
+                    .entry((*x, *y))
+                    .or_default()
+                    .insert(digits.clone().parse().unwrap());
+            }
         }
         i += digits.len();
     }
+
+    let mut sum: usize = 0;
+    for (pos, numbers) in gear_map {
+        if numbers.len() == 2 {
+            println!("Gear at pos {:?}, connecting {:?}", pos, numbers);
+            sum += numbers.into_iter().product::<usize>();
+        }
+    }
+
     println!("{}", sum);
 }
 
