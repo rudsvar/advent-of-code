@@ -119,6 +119,9 @@ ghi789";
         assert_eq!(
             vec!['c', '1', '2', 'f', '5', 'i', '7', '8'],
             surrounding_chars(s, 3, 1)
+                .into_iter()
+                .map(|(c, _, _)| c)
+                .collect::<Vec<_>>()
         );
     }
 
@@ -127,7 +130,13 @@ ghi789";
         let s = r"abc123
 def456
 ghi789";
-        assert_eq!(vec!['2', '\n', '5', '6', '\n'], surrounding_chars(s, 5, 0));
+        assert_eq!(
+            vec!['2', '\n', '5', '6', '\n'],
+            surrounding_chars(s, 5, 0)
+                .into_iter()
+                .map(|(c, _, _)| c)
+                .collect::<Vec<_>>()
+        );
     }
 
     #[test]
@@ -136,6 +145,12 @@ ghi789";
 def456
 ghi789
 ";
-        assert_eq!(vec!['5', '6', '\n', '8', '\n'], surrounding_chars(s, 5, 2));
+        assert_eq!(
+            vec!['5', '6', '\n', '8', '\n'],
+            surrounding_chars(s, 5, 2)
+                .into_iter()
+                .map(|(c, _, _)| c)
+                .collect::<Vec<_>>()
+        );
     }
 }
